@@ -1,0 +1,11 @@
+# Python virtual environment
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# SQLite database file — generated at runtime, not committed
+anywhere_parent.db
+
+# Environment variables (API keys, secrets)
+.env

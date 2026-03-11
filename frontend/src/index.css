@@ -1,0 +1,11 @@
+/* Tailwind v4: a single @import replaces the old @tailwind directives */
+@import "tailwindcss";
+
+/* Leaflet needs its own CSS for map tiles and controls to render correctly */
+@import "leaflet/dist/leaflet.css";
+
+/* Reset body so the map can fill the full viewport without unexpected scrollbars */
+body {
+  margin: 0;
+  padding: 0;
+}
