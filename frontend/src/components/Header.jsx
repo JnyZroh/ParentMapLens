@@ -17,8 +17,8 @@ function Header() {
   const [apiStatus, setApiStatus] = useState('checking')
 
   useEffect(() => {
-    // Hit the FastAPI health endpoint.  Vite proxies /api → http://localhost:8000
-    fetch('/api/health')
+    // Hit the FastAPI status endpoint.  Vite proxies /api → http://localhost:8000
+    fetch('/api/status')
       .then((res) => {
         if (res.ok) setApiStatus('online')
         else setApiStatus('offline')
