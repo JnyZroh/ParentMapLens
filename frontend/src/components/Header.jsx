@@ -1,13 +1,25 @@
 /**
  * Header.jsx
  *
- * A simple top navigation bar that displays the app name and a health-check
- * status badge.
+ * A top navigation bar that displays the app name and an API status badge.
  *
- * WHY fetch the health check here?
- *   Showing backend status in the UI immediately tells developers (and users)
- *   whether the FastAPI server is running.  It's a fast feedback loop during
- *   development and a useful status indicator in production.
+ * ── The Status Badge ─────────────────────────────────────────────────────────
+ * When the component first loads it calls GET /api/status on the FastAPI
+ * backend.  Based on the response you will see one of three states:
+ *
+ *   🟡 Yellow dot  "API: checking"
+ *      The fetch is still in flight.  You see this for a fraction of a second
+ *      on first load while the browser waits for the backend to respond.
+ *
+ *   🟢 Green dot   "API: online"
+ *      The backend responded with HTTP 200 and the JSON  { "status": "ok" }.
+ *      Everything is working.  The map data calls in Phase 3 will succeed.
+ *
+ *   🔴 Red dot     "API: offline"
+ *      The fetch failed (network error) or the server returned an error code.
+ *      Most likely cause: you haven't started the backend yet.
+ *      Fix: open a terminal, cd backend, run  uvicorn main:app --reload
+ * ─────────────────────────────────────────────────────────────────────────────
  */
 
 import { useEffect, useState } from 'react'
