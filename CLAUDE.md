@@ -34,6 +34,11 @@ The app tracks parent-verified data points for any location:
 - [ ] **Phase 3:** Search bar and basic "Awareness" pins on the map.
 - [ ] **Phase 4:** Parent Report form for crowdsourcing data.
 
+## 🎨 UI & Logic Specifics
+- **The Match Score:** This is a dynamic number (0.0–10.0) calculated by comparing the "Crew" requirements against the "Place Tags." It is distinct from the public star rating (out of 5). See `src/utils/scoreEngine.js` for the algorithm.
+- **Crew State:** The app must track the number of Adults, Toddlers, and Infants in the current session. This state lives in `CrewContext` and defaults to the parent's saved profile counts. It can be adjusted per-session via the "Adjust" button in the FilterBar.
+- **Location Snippet:** The top-left map box in HeroSection is a non-interactive (or severely limited-interaction) Leaflet map showing the immediate block around the venue. Disable dragging, zoom controls, scroll wheel zoom, double-click zoom, and tap zoom to keep it read-only.
+
 ## 💻 Development Commands
 *(To be populated after project initialization)*
 - **Start Frontend:** `npm run dev`

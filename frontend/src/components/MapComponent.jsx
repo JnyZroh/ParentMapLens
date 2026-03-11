@@ -16,21 +16,7 @@
  */
 
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
-import L from 'leaflet'
-
-// ── Fix Leaflet's broken default icon paths under Vite ────────────────────────
-import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png'
-import markerIcon from 'leaflet/dist/images/marker-icon.png'
-import markerShadow from 'leaflet/dist/images/marker-shadow.png'
-
-delete L.Icon.Default.prototype._getIconUrl
-
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: markerIcon2x,
-  iconUrl: markerIcon,
-  shadowUrl: markerShadow,
-})
-// ─────────────────────────────────────────────────────────────────────────────
+// Icon fix is applied globally in main.jsx via leafletIconFix.js — no need to repeat here.
 
 /**
  * Default map center and zoom level.
