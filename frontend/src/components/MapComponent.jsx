@@ -20,10 +20,11 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 
 /**
  * Default map center and zoom level.
- * Montreal is our launch city — change as needed.
+ * Centred on Métro Verdun (Rue Wellington), our launch neighbourhood in Montréal.
+ * Zoom 15 shows roughly a 5-block radius — ideal for a neighbourhood search view.
  */
-const DEFAULT_CENTER = [45.5017, -73.5673] // [latitude, longitude]
-const DEFAULT_ZOOM = 13
+const DEFAULT_CENTER = [45.4651, -73.5692] // Métro Verdun, Rue Wellington
+const DEFAULT_ZOOM = 15
 
 function MapComponent() {
   return (
@@ -58,7 +59,7 @@ function MapComponent() {
        */}
       <Marker position={DEFAULT_CENTER}>
         <Popup>
-          <strong>Anywhere Parent HQ 📍</strong>
+          <strong>Métro Verdun 📍</strong>
           <br />
           Phase 3 will load real venue pins here.
         </Popup>

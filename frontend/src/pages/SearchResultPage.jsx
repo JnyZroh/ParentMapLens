@@ -36,9 +36,12 @@ import SuggestionsGrid     from '../components/SuggestionsGrid'
 
 // ── Mock data ─────────────────────────────────────────────────────────────────
 // This represents a single venue "result" that the user tapped in a list.
+// All locations are in the Verdun borough of Montréal, centred around
+// Métro Verdun on Rue Wellington — the neighbourhood's main commercial strip.
+//
 // Shape:
 //   name     : display name
-//   address  : street address + postal code
+//   address  : street address + postal code (Verdun, H4G prefix)
 //   rating   : public star rating out of 5.0
 //   distance : km from user's location
 //   tags     : array of verified amenity tag keys
@@ -46,47 +49,84 @@ import SuggestionsGrid     from '../components/SuggestionsGrid'
 
 const MOCK_PLACE = {
   id: 1,
-  name: 'Café Olimpico',
-  address: '124 Rue St-Viateur O, H2T 2K8',
-  rating: 4.1,
-  distance: 1.1,
+  name: 'Café La Marmite',
+  address: '3975 Rue Wellington, Verdun, H4G 1V4',
+  rating: 4.3,
+  distance: 0.3,
   tags: ['stroller_friendly', 'changing_table', 'play_area', 'high_chairs', 'unisex_baby_duty'],
-  coordinates: [45.5231, -73.6203],
+  // Coordinates on Rue Wellington, just west of Métro Verdun
+  coordinates: [45.4659, -73.5720],
 }
 
-// Four nearby alternatives displayed in the SuggestionsGrid
+// ── Venue photos ──────────────────────────────────────────────────────────────
+// Six placeholder images sourced from picsum.photos (a free, seed-stable photo
+// service).  Each photo is semantically linked to one of the venue's tags so
+// parents can visually confirm the amenity they care about.
+//
+// Seed naming convention: <tag-key>-<descriptor> → stable URL per tag
+// (same seed always returns the same photo, so the grid stays consistent).
+const VENUE_PHOTOS = [
+  {
+    src: 'https://picsum.photos/seed/verdun-cafe-interior/400/300',
+    label: 'Venue',           // General café shot
+  },
+  {
+    src: 'https://picsum.photos/seed/restaurant-highchair/400/300',
+    label: 'High Chairs',     // tag: high_chairs
+  },
+  {
+    src: 'https://picsum.photos/seed/wide-cafe-entrance/400/300',
+    label: 'Stroller Access', // tag: stroller_friendly
+  },
+  {
+    src: 'https://picsum.photos/seed/baby-change-station/400/300',
+    label: 'Changing Table',  // tag: changing_table
+  },
+  {
+    src: 'https://picsum.photos/seed/toddler-play-corner/400/300',
+    label: 'Play Area',       // tag: play_area
+  },
+  {
+    src: 'https://picsum.photos/seed/family-restroom-sign/400/300',
+    label: 'Family Restroom', // tag: unisex_baby_duty
+  },
+]
+
+// Four nearby alternatives displayed in the SuggestionsGrid.
+// All on or near Rue Wellington in Verdun, within walking distance of Métro Verdun.
 const MOCK_SUGGESTIONS = [
   {
     id: 2,
-    name: 'Resto du Quartier',
-    address: '1111 address, h4e 1t6',
-    distance: 1.1,
+    name: 'La Cantine Verdunoise',
+    address: '4102 Rue Wellington, Verdun, H4G 1V7',
+    distance: 0.6,
     tags: ['stroller_friendly', 'changing_table', 'play_area', 'high_chairs'],
-    coordinates: [45.524, -73.621],
+    coordinates: [45.4655, -73.5756],
   },
   {
     id: 3,
-    name: 'Boulangerie Locale',
-    address: '1111 address, h4e 1t6',
-    distance: 1.4,
+    name: 'Boulangerie Automne',
+    address: '3889 Rue Wellington, Verdun, H4G 1T9',
+    distance: 0.4,
     tags: ['changing_table', 'high_chairs'],
-    coordinates: [45.522, -73.619],
+    coordinates: [45.4663, -73.5697],
   },
   {
     id: 4,
-    name: 'Parc-Café',
-    address: '1111 address, h4e 1t6',
-    distance: 1.3,
+    name: 'Parc-Café Riverside',
+    // Along the St. Lawrence River waterfront promenade in Verdun
+    address: '600 Prom. Wellington, Verdun, H4G 1M4',
+    distance: 0.8,
     tags: ['stroller_friendly', 'play_area', 'high_chairs', 'unisex_baby_duty'],
-    coordinates: [45.521, -73.623],
+    coordinates: [45.4672, -73.5770],
   },
   {
     id: 5,
-    name: 'La Brasserie',
-    address: '1111 address, h4e 1t6',
-    distance: 2.1,
+    name: 'Brasserie du Quartier',
+    address: '75 Rue Galt O., Verdun, H4G 1B8',
+    distance: 1.2,
     tags: ['stroller_friendly', 'changing_table', 'high_chairs'],
-    coordinates: [45.520, -73.618],
+    coordinates: [45.4645, -73.5668],
   },
 ]
 
@@ -95,7 +135,7 @@ const ACTIVE_FILTERS = ['stroller_friendly', 'changing_table', 'play_area']
 
 function SearchResultPage() {
   // Controlled search input value
-  const [searchText, setSearchText] = useState('Café Olimpico')
+  const [searchText, setSearchText] = useState('Café La Marmite')
 
   function handleSearch(text) {
     // Phase 3: replace with an API call to GET /api/places?q={text}
@@ -130,7 +170,7 @@ function SearchResultPage() {
         <HeroSection
           center={MOCK_PLACE.coordinates}
           zoom={16}
-          photos={[]} // Phase 3: populate with real venue photo URLs
+          photos={VENUE_PHOTOS}
         />
 
         {/* ── 3. Main Info Card: Venue Details + Dual Ratings ───────────── */}
@@ -140,7 +180,7 @@ function SearchResultPage() {
 
         {/* ── 4. Filter Bar: Crew · Filters · Showing ───────────────────── */}
         <FilterBar
-          locationCode="H4E 1T5"
+          locationCode="H4G 1V4"
           activeTagFilters={ACTIVE_FILTERS}
         />
 

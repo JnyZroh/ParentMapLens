@@ -31,20 +31,36 @@
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 
 /**
- * A single placeholder tile for the photo grid.
- * In Phase 3+ this will accept a `src` prop and render a real <img>.
+ * A single tile for the photo grid.
+ *
+ * Accepts either a plain URL string OR a photo object { src, label } where
+ * `label` is the amenity tag the photo represents (e.g. "High Chairs").
+ * When a label is present it appears as a small pill overlay at the bottom-left
+ * of the tile, giving parents a quick visual cue about the amenity shown.
+ *
+ * Falls back to a gray placeholder when no src is provided.
  */
-function PhotoTile({ src, index }) {
+function PhotoTile({ src, label, index }) {
   if (src) {
     return (
-      <img
-        src={src}
-        alt={`Venue photo ${index + 1}`}
-        className="w-full h-full object-cover rounded-md"
-      />
+      // `relative` is required so the absolute-positioned label overlay stays
+      // inside this tile rather than escaping to the page.
+      <div className="relative w-full h-full rounded-md overflow-hidden">
+        <img
+          src={src}
+          alt={label ? `${label} at this venue` : `Venue photo ${index + 1}`}
+          className="w-full h-full object-cover"
+        />
+        {/* Tag label overlay — only shown when a label is provided */}
+        {label && (
+          <span className="absolute bottom-0.5 left-0.5 bg-black/50 text-white text-[9px] leading-tight px-1 py-0.5 rounded">
+            {label}
+          </span>
+        )}
+      </div>
     )
   }
-  // Placeholder: a gray box with a subtle diagonal line pattern
+  // Placeholder: a gray box shown while photos are loading or missing
   return (
     <div className="w-full h-full bg-gray-200 rounded-md flex items-center justify-center">
       <span className="text-gray-400 text-xs">photo</span>
@@ -106,9 +122,13 @@ function HeroSection({ center, zoom = 16, photos = [] }) {
         * We always render 6 tiles; any photos beyond index 5 are ignored.
         */}
       <div className="flex-[2] grid grid-cols-2 grid-rows-3 gap-1">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <PhotoTile key={i} src={photos[i]} index={i} />
-        ))}
+        {Array.from({ length: 6 }).map((_, i) => {
+          // Support both plain URL strings and { src, label } objects
+          const photo = photos[i]
+          const src   = photo?.src ?? photo ?? undefined
+          const label = photo?.label ?? undefined
+          return <PhotoTile key={i} src={src} label={label} index={i} />
+        })}
       </div>
     </div>
   )
