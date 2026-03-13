@@ -5,9 +5,9 @@
  *
  *  ┌─────────────┬───────────────────┬──────────────────────────┐
  *  │    CREW     │     FILTERS       │        SHOWING           │
- *  │  1 adult    │  Location H4E 1T5 │  stroller-friendly       │
- *  │  2 toddlers │  ──●────── 3km    │  diaper changing tables  │
- *  │  1 infant   │                   │  play area               │
+ *  │  1 adult    │  Location H4G 1V4 │  × stroller-friendly     │
+ *  │  2 toddlers │  ──●────── 3km    │  × diaper changing       │
+ *  │  1 infant   │                   │  × play area             │
  *  │  [adjust]   │                   │  ☑ Include unconfirmed   │
  *  └─────────────┴───────────────────┴──────────────────────────┘
  *
@@ -18,21 +18,24 @@
  *
  * ── FILTERS section ───────────────────────────────────────────────────────────
  * Location chip (postal code of current search area) + a distance range slider.
- * In Phase 3 these will filter the venue list returned by the backend.
+ * `radiusKm` and `onRadiusChange` are now props (lifted to SearchResultPage)
+ * so slider changes immediately affect the SuggestionsGrid.
  *
  * ── SHOWING section ───────────────────────────────────────────────────────────
- * A read-only summary of the currently active tag filters.
- * "Include unconfirmed" toggles whether venues with parent-reported-but-
- * unverified tags are shown alongside fully verified ones.
+ * Active tag filters are now props (`activeTagFilters` + `onTagToggle`).
+ * Each tag renders as a small button with a × so parents can remove tags
+ * on the fly; the grid updates instantly.
  *
  * ── Props ─────────────────────────────────────────────────────────────────────
- * @prop {string}   locationCode     - Current search area postal code, e.g. "H4E 1T5"
- * @prop {string[]} activeTagFilters - Tag keys currently filtering the results
- * @prop {Function} onFiltersChange  - Called with updated filter state (Phase 3)
+ * @prop {string}   locationCode      - Current search area postal code, e.g. "H4G 1V4"
+ * @prop {number}   radiusKm          - Current slider value (km), owned by SearchResultPage
+ * @prop {Function} onRadiusChange    - Called with the new number when slider moves
+ * @prop {string[]} activeTagFilters  - Tag keys currently filtering the results
+ * @prop {Function} onTagToggle       - Called with a tag key to add or remove it
  */
 
-import { useState }                from 'react'
-import { useCrew }                 from '../context/CrewContext'
+import { useState }  from 'react'
+import { useCrew }   from '../context/CrewContext'
 
 // ── Small helper: +/- stepper for the Adjust panel ────────────────────────────
 function Stepper({ label, value, onIncrement, onDecrement }) {
@@ -58,25 +61,24 @@ function Stepper({ label, value, onIncrement, onDecrement }) {
 
 // ── Tag label lookup (short versions for the SHOWING column) ──────────────────
 const TAG_LABELS = {
-  stroller_friendly: 'Stroller-friendly spaces',
-  changing_table:    'Diaper changing tables',
+  stroller_friendly: 'Stroller-friendly',
+  changing_table:    'Changing tables',
   play_area:         'Play area',
   high_chairs:       'High chairs',
-  unisex_baby_duty:  'Unisex baby duty spaces',
+  unisex_baby_duty:  'Unisex baby duty',
 }
 
 function FilterBar({
-  locationCode = 'H4E 1T5',
-  activeTagFilters = ['stroller_friendly', 'changing_table', 'play_area'],
-  onFiltersChange,
+  locationCode     = 'H4G 1V4',
+  radiusKm         = 3,
+  onRadiusChange   = () => {},
+  activeTagFilters = [],
+  onTagToggle      = () => {},
 }) {
   // Pull crew state + adjust controls from global context
   const { crew, adjustCrew, isAdjusting, setIsAdjusting } = useCrew()
 
-  // Distance radius slider — local state; will be lifted to a filter context in Phase 3
-  const [radiusKm, setRadiusKm] = useState(3)
-
-  // Include unconfirmed reports toggle — local state for now
+  // Include unconfirmed reports toggle — local state (doesn't affect filtering yet)
   const [includeUnconfirmed, setIncludeUnconfirmed] = useState(true)
 
   // Build a readable crew summary string, skipping zero-count groups
@@ -164,7 +166,7 @@ function FilterBar({
             <span className="text-gray-800 font-semibold text-[10px]">{locationCode}</span>
           </div>
 
-          {/* Distance range slider (0–10 km) */}
+          {/* Distance range slider — now a controlled prop, not local state */}
           <div>
             <input
               type="range"
@@ -172,7 +174,7 @@ function FilterBar({
               max={10}
               step={0.5}
               value={radiusKm}
-              onChange={e => setRadiusKm(parseFloat(e.target.value))}
+              onChange={e => onRadiusChange(parseFloat(e.target.value))}
               className="w-full accent-purple-500"
               aria-label="Search radius in km"
             />
@@ -186,19 +188,49 @@ function FilterBar({
 
         {/* ── Column 3: Showing ───────────────────────────────────────────── */}
         {/*
-          * A read-only summary of active tag filters.
-          * "SHOWING" is the plain-english answer to "what are we filtering by?"
+          * Each active filter is a small button with a × remove action.
+          * Clicking × calls onTagToggle(tag), which removes it from
+          * activeTagFilters in SearchResultPage and instantly updates the grid.
           */}
         <div className="flex-1 min-w-0">
           <p className="font-bold text-gray-500 text-[10px] uppercase tracking-wide mb-1">
             Showing
           </p>
 
-          {/* Active filter tag names */}
-          <ul className="space-y-0.5">
+          {/* Active filter chips — each one is removable */}
+          <ul className="space-y-1">
+            {activeTagFilters.length === 0 && (
+              <li className="text-gray-400 text-[10px] italic">All venues</li>
+            )}
             {activeTagFilters.map(tag => (
-              <li key={tag} className="text-gray-600 leading-snug truncate">
-                {TAG_LABELS[tag] ?? tag}
+              <li key={tag}>
+                <button
+                  onClick={() => onTagToggle(tag)}
+                  /*
+                   * The entire chip is a button so the × is easy to tap on mobile.
+                   * `group` lets the × icon brighten on hover without a separate
+                   * hover handler.
+                   */
+                  className="
+                    group
+                    inline-flex items-center gap-1
+                    bg-purple-100 hover:bg-purple-200
+                    text-purple-800
+                    rounded-full px-2 py-0.5
+                    text-[10px] font-medium
+                    transition-colors
+                    cursor-pointer
+                    max-w-full
+                  "
+                  aria-label={`Remove filter: ${TAG_LABELS[tag] ?? tag}`}
+                  title="Click to remove this filter"
+                >
+                  <span className="truncate">{TAG_LABELS[tag] ?? tag}</span>
+                  {/* × remove indicator */}
+                  <span className="shrink-0 opacity-50 group-hover:opacity-100 font-bold leading-none">
+                    ×
+                  </span>
+                </button>
               </li>
             ))}
           </ul>

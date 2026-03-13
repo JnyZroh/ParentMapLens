@@ -24,7 +24,10 @@
  * This matches the "Include unconfirmed" filter in the FilterBar.
  *
  * ── Props ─────────────────────────────────────────────────────────────────────
- * @prop {Object[]} suggestions - Array of venue objects (same shape as `place` in MainInfoCard)
+ * @prop {Object[]} suggestions   - Array of venue objects (same shape as `place` in MainInfoCard)
+ * @prop {Function} onSelectPlace - Called with a place id when the user taps a card.
+ *                                  Lifts selection up to SearchResultPage so the hero
+ *                                  and info card update to show the chosen venue.
  */
 
 import { useCrew }                                     from '../context/CrewContext'
@@ -61,8 +64,13 @@ function TagIconRow({ tags, textClass }) {
 
 /**
  * SuggestionCard — a single nearby venue tile.
+ *
+ * Clicking anywhere on the card calls `onSelect`, which updates `activePlaceId`
+ * in SearchResultPage and swaps the hero map pin, photo grid, and info card.
+ * `cursor-pointer` and a hover ring give users a clear affordance that the
+ * entire card is a tap target.
  */
-function SuggestionCard({ place }) {
+function SuggestionCard({ place, onSelect }) {
   const { crew } = useCrew()
   const score = calculateCompatibilityScore(crew, place.tags)
   const { bg, text } = scoreToColorClasses(score)
@@ -71,7 +79,24 @@ function SuggestionCard({ place }) {
   const borderClass = bg === 'bg-white' ? 'border border-gray-200' : ''
 
   return (
-    <div className={`rounded-2xl p-3 shadow-sm flex flex-col gap-1 ${bg} ${text} ${borderClass}`}>
+    <button
+      onClick={() => onSelect(place.id)}
+      /*
+       * `w-full text-left` makes the <button> fill its grid cell and keeps
+       * text alignment consistent with the old <div> layout.
+       * The ring on focus-visible provides keyboard accessibility.
+       */
+      className={`
+        w-full text-left
+        rounded-2xl p-3 shadow-sm
+        flex flex-col gap-1
+        cursor-pointer
+        hover:ring-2 hover:ring-purple-400 hover:ring-offset-1
+        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500
+        transition-shadow
+        ${bg} ${text} ${borderClass}
+      `}
+    >
 
       {/* ── Top row: Name + Distance ────────────────────────────────────── */}
       <div className="flex justify-between items-start gap-1">
@@ -91,7 +116,7 @@ function SuggestionCard({ place }) {
           {score.toFixed(1)}
         </span>
       </div>
-    </div>
+    </button>
   )
 }
 
@@ -101,11 +126,11 @@ function SuggestionCard({ place }) {
  * `grid-cols-2` creates the two-column layout.
  * `gap-2` gives each card breathing room.
  */
-function SuggestionsGrid({ suggestions }) {
+function SuggestionsGrid({ suggestions, onSelectPlace }) {
   if (!suggestions || suggestions.length === 0) {
     return (
       <p className="mx-3 mt-3 text-gray-400 text-sm text-center py-4">
-        No nearby venues found.
+        No nearby venues match your filters.
       </p>
     )
   }
@@ -120,7 +145,11 @@ function SuggestionsGrid({ suggestions }) {
       {/* 2-column card grid */}
       <div className="grid grid-cols-2 gap-2">
         {suggestions.map(place => (
-          <SuggestionCard key={place.id} place={place} />
+          <SuggestionCard
+            key={place.id}
+            place={place}
+            onSelect={onSelectPlace}
+          />
         ))}
       </div>
     </div>

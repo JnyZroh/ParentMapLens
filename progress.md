@@ -25,63 +25,61 @@ Completed in session `review-project-plan-oxRNH`.
 
 ---
 
-## Phase 3 — Wire Up SearchResultPage Interactivity with Fake Data
+## Phase 3 — Wire Up SearchResultPage Interactivity with Fake Data (Complete ✅)
 
-> **Goal:** Make every visible control do something meaningful using expanded mock data — no backend required.
+Completed in session `review-project-plan-oxRNH`.
 
 ### 1. Expand mock data in `SearchResultPage.jsx`
-- [ ] Add `photos` array (6 picsum.photos URLs) to each suggestion in `MOCK_SUGGESTIONS`
-- [ ] Combine main place + suggestions into a single `MOCK_PLACES` array
-- [ ] Track `activePlaceId` in local state (default: `MOCK_PLACE.id`)
-- [ ] Derive `activePlace` and `nearbySuggestions` from `activePlaceId` + `MOCK_PLACES`
-- [ ] Lift `radiusKm` and `activeTagFilters` into page-level state so FilterBar changes affect the grid
-- [ ] Pass `onSelectPlace`, `onRadiusChange`, `onTagToggle` callbacks down to children
+- [x] Add `photos` array (6 picsum.photos `{ src, label }` objects) to every venue including all suggestions
+- [x] Combine main place + suggestions into a single `MOCK_PLACES` array
+- [x] Track `activePlaceId` in local state (default: `MOCK_PLACES[0].id`)
+- [x] Derive `activePlace` from `activePlaceId` + `MOCK_PLACES`
+- [x] Lift `radiusKm` and `activeTagFilters` into page-level state so FilterBar changes affect the grid
+- [x] Pass `onSelectPlace`, `onRadiusChange`, `onTagToggle` callbacks down to children
 
 ### 2. `SuggestionsGrid.jsx` / `SuggestionCard`
-- [ ] Add `onClick` prop to `SuggestionCard` → calls `onSelectPlace(place.id)`
-- [ ] Add hover/active cursor style to signal the card is clickable
+- [x] `SuggestionCard` is now a `<button>` that calls `onSelect(place.id)` on click
+- [x] `cursor-pointer` + `hover:ring-2 hover:ring-purple-400` signal the card is tappable
+- [x] `focus-visible` ring added for keyboard accessibility
 
 ### 3. `FilterBar.jsx`
-- [ ] Accept `radiusKm` + `onRadiusChange` props (replace internal `useState`)
-- [ ] Accept `activeTagFilters` + `onTagToggle` props (replace hardcoded prop)
-- [ ] Tag chips in SHOWING section become clickable `<button>` elements with a remove (×) action
+- [x] Accept `radiusKm` + `onRadiusChange` props (replaced internal `useState`)
+- [x] Accept `activeTagFilters` + `onTagToggle` props (replaced hardcoded default)
+- [x] Tag chips in SHOWING section are now `<button>` elements with a × remove action
+- [x] When `activeTagFilters` is empty, shows "All venues" placeholder text
 
 ### 4. Filter logic in `SearchResultPage.jsx`
-- [ ] Filter `nearbySuggestions` by `distance <= radiusKm`
-- [ ] Filter by tag: only show suggestions that share at least one tag with `activeTagFilters`
-- [ ] Filter by `searchText`: case-insensitive name match (if search text is non-empty)
+- [x] Filter suggestions by `distance <= radiusKm`
+- [x] Filter by tag: only show suggestions sharing at least one tag with `activeTagFilters`
+- [x] Filter by `searchText`: case-insensitive name match (empty search passes all)
+- [x] Active place is always excluded from suggestions (never shows current venue as a card)
 
 ### 5. `HeroSection.jsx`
 - [x] Already accepts `center` and `photos` props — no structural changes needed
-- [ ] `SearchResultPage` will pass photos from the active place in mock data
+- [x] `SearchResultPage` now passes `activePlace.photos` so the grid updates on card click
 
-### State flow after changes
+### State flow (implemented)
 ```
 SearchResultPage
-  activePlaceId    → derives activePlace + nearbySuggestions
+  activePlaceId    → derives activePlace + filters suggestions
   searchText       → filters suggestions by name
   radiusKm         → filters suggestions by distance  (lifted from FilterBar)
   activeTagFilters → filters suggestions by tags      (lifted from FilterBar)
   │
-  ├── SearchBar       (searchText, onChange)
+  ├── SearchBar       (value=searchText, onChange=setSearchText)
   ├── HeroSection     (center=activePlace.coordinates, photos=activePlace.photos)
   ├── MainInfoCard    (place=activePlace)
   ├── FilterBar       (radiusKm, onRadiusChange, activeTagFilters, onTagToggle)
-  └── SuggestionsGrid (suggestions=filtered, onSelectPlace)
+  └── SuggestionsGrid (suggestions=filteredSuggestions, onSelectPlace=setActivePlaceId)
 ```
-
-### Critical files
-- `frontend/src/pages/SearchResultPage.jsx` — primary state owner; most logic lives here
-- `frontend/src/components/FilterBar.jsx` — lift radiusKm + activeTagFilters to props
-- `frontend/src/components/SuggestionsGrid.jsx` — add onClick to cards
 
 ### Verification steps
 Run `cd frontend && npm run dev`, then confirm:
-1. Click a suggestion card → MainInfoCard name + map pin change
-2. Drag distance slider to 1 km → far cards disappear
-3. Type in search bar → only matching venues remain in suggestions
+1. Click a suggestion card → MainInfoCard name, map pin, and photo grid all change
+2. Drag distance slider to 0.5 km → only Café La Marmite (0.3 km) remains visible
+3. Type "boul" in search bar → only Boulangerie Automne appears in suggestions
 4. Click × on a tag chip in SHOWING → suggestions missing that tag disappear
-5. Adjust crew → all compatibility scores update in real time (already works)
+5. Adjust crew → all compatibility scores update in real time
 
 ---
 
