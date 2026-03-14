@@ -1,22 +1,29 @@
 /**
  * App.jsx — Root component
  *
- * Renders the SearchResultPage, which is the primary UI for Phase 2+.
- * The Header and full-screen MapComponent from Phase 1 have been superseded
- * by the SearchResultPage layout (which includes its own map snippet in
- * HeroSection and its own SearchBar).
+ * Sets up client-side routing with React Router.
  *
- * In later phases, App.jsx will host a router (e.g. React Router) to switch
- * between pages:
- *   /             → HomeScreen (full-screen map, Phase 1 style)
- *   /search       → SearchResultPage (this current view)
- *   /place/:id    → PlaceDetailPage (full detail + parent review form)
+ * Routes:
+ *   /        → HomeDashboard  (landing screen with map + recommendations)
+ *   /search  → SearchResultPage (venue search results + detail view)
+ *
+ * In a future phase, /place/:id will open a full-detail page with the
+ * Parent Report form (Phase 5).
  */
 
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import HomeDashboard    from './pages/HomeDashboard'
 import SearchResultPage from './pages/SearchResultPage'
 
 function App() {
-  return <SearchResultPage />
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/"       element={<HomeDashboard />} />
+        <Route path="/search" element={<SearchResultPage />} />
+      </Routes>
+    </BrowserRouter>
+  )
 }
 
 export default App

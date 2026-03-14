@@ -83,5 +83,29 @@ Run `cd frontend && npm run dev`, then confirm:
 
 ---
 
-## Phase 4 — Parent Report Form
+## Phase 4 — Homepage / Dashboard with Recommendations
+> Not yet started.
+
+Build a landing screen that greets the user before any search is run.
+
+### Layout (top → bottom)
+- **SearchBar + Profile** — same header as SearchResultPage; Search button navigates to `/search`
+- **Full-width Leaflet map** — centered on the user's city (Métro Verdun default), zoom 14, draggable but no zoom controls
+- **"Plan a Day with Your Crew" CTA block** — inline `FilterBar` (crew adjuster, location, distance, tags) so filters are set before searching
+- **Search button** — large tap target that navigates to `/search`
+- **"Recommendations For You" grid** — 2-column `SuggestionsGrid` showing all MOCK_PLACES sorted by descending Crew Match Score; once a favorites list exists, favorited places surface first
+
+### Routing
+- Install `react-router-dom` and set up `BrowserRouter` in `App.jsx`
+- `/` → `HomeDashboard`
+- `/search` → `SearchResultPage`
+
+### Favorites
+- Add `FavoritesContext` to track saved place IDs (Set in React state)
+- Wrap app with `FavoritesProvider` in `main.jsx`
+- `SuggestionCard` gains a ☆/★ star toggle in the top-right corner for adding/removing favorites from any page
+
+---
+
+## Phase 5 — Parent Report Form
 > Crowdsource awareness data via `POST /api/places/{id}/reviews`. Not yet started.

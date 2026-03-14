@@ -12,6 +12,11 @@
  *   │                  6.0 │  ← crew compatibility score bottom-right
  *   └──────────────────────┘
  *
+ * ── Star / Favorite toggle ────────────────────────────────────────────────────
+ * A ☆/★ button sits in the top-right corner next to the distance label.
+ * Tapping it calls `toggleFavorite` from FavoritesContext without triggering
+ * the card's `onSelect` (stopPropagation).  Filled ★ = text-yellow-300.
+ *
  * ── Card background colour ────────────────────────────────────────────────────
  * The card's background reflects match quality at a glance:
  *   ≥ 7.5  →  dark blue   (great match for your crew)
@@ -31,6 +36,7 @@
  */
 
 import { useCrew }                                     from '../context/CrewContext'
+import { useFavorites }                                from '../context/FavoritesContext'
 import { calculateCompatibilityScore, scoreToColorClasses } from '../utils/scoreEngine'
 
 // ── Tag shape metadata (outline versions for suggestion cards) ────────────────
@@ -72,11 +78,13 @@ function TagIconRow({ tags, textClass }) {
  */
 function SuggestionCard({ place, onSelect }) {
   const { crew } = useCrew()
+  const { favorites, toggleFavorite } = useFavorites()
   const score = calculateCompatibilityScore(crew, place.tags)
   const { bg, text } = scoreToColorClasses(score)
 
   // Border colour: white-bg cards get a visible border so they don't float
   const borderClass = bg === 'bg-white' ? 'border border-gray-200' : ''
+  const isFavorited = favorites.has(place.id)
 
   return (
     <button
@@ -98,10 +106,30 @@ function SuggestionCard({ place, onSelect }) {
       `}
     >
 
-      {/* ── Top row: Name + Distance ────────────────────────────────────── */}
+      {/* ── Top row: Name + Distance + Star ─────────────────────────────── */}
       <div className="flex justify-between items-start gap-1">
         <p className="font-bold text-sm leading-tight line-clamp-1">{place.name}</p>
-        <span className="text-xs font-semibold shrink-0 opacity-80">{place.distance} km</span>
+
+        {/* Distance + favorite star grouped at top-right */}
+        <div className="flex items-center gap-1 shrink-0">
+          <span className="text-xs font-semibold opacity-80">{place.distance} km</span>
+
+          {/*
+           * Star toggle — stopPropagation prevents the card's onSelect from
+           * firing when the user only wants to save the place, not navigate to it.
+           * ★ filled yellow = favorited; ☆ outline at 60% opacity = not yet saved.
+           */}
+          <button
+            onClick={e => { e.stopPropagation(); toggleFavorite(place.id) }}
+            aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+            className="leading-none focus-visible:outline-none"
+          >
+            {isFavorited
+              ? <span className="text-yellow-300 text-sm">★</span>
+              : <span className="text-sm opacity-60">☆</span>
+            }
+          </button>
+        </div>
       </div>
 
       {/* Address */}
