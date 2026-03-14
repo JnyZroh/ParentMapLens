@@ -112,21 +112,23 @@ function SuggestionCard({ place, onSelect }) {
 
         {/* Distance + favorite star grouped at top-right */}
         <div className="flex items-center gap-1 shrink-0">
-          <span className="text-xs font-semibold opacity-80">{place.distance} km</span>
+          {/* Slightly larger than xs so it reads at a glance */}
+          <span className="text-sm font-semibold opacity-80">{place.distance} km</span>
 
           {/*
            * Star toggle — stopPropagation prevents the card's onSelect from
            * firing when the user only wants to save the place, not navigate to it.
-           * ★ filled yellow = favorited; ☆ outline at 60% opacity = not yet saved.
+           * Padding + negative margin keeps the visual size tight while
+           * expanding the tap surface to ~32×32 px for comfortable thumb use.
            */}
           <button
             onClick={e => { e.stopPropagation(); toggleFavorite(place.id) }}
             aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
-            className="leading-none focus-visible:outline-none"
+            className="p-1.5 -m-1.5 leading-none focus-visible:outline-none"
           >
             {isFavorited
-              ? <span className="text-yellow-300 text-sm">★</span>
-              : <span className="text-sm opacity-60">☆</span>
+              ? <span className="text-yellow-300 text-lg">★</span>
+              : <span className="text-lg opacity-60">☆</span>
             }
           </button>
         </div>

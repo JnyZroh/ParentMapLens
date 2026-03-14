@@ -34,8 +34,8 @@
  * @prop {Function} onTagToggle       - Called with a tag key to add or remove it
  */
 
-import { useState }  from 'react'
-import { useCrew }   from '../context/CrewContext'
+import { useState, useRef, useEffect } from 'react'
+import { useCrew }                     from '../context/CrewContext'
 
 // ── Small helper: +/- stepper for the Adjust panel ────────────────────────────
 function Stepper({ label, value, onIncrement, onDecrement }) {
@@ -68,6 +68,12 @@ const TAG_LABELS = {
   unisex_baby_duty:  'Unisex baby duty',
 }
 
+// ── All available tags sorted alphabetically by display label ─────────────────
+// This drives the "more tags" dropdown so new tags appear in a predictable order.
+const ALL_TAGS_SORTED = Object.entries(TAG_LABELS)
+  .sort(([, a], [, b]) => a.localeCompare(b))
+  // → [['changing_table','Changing tables'], ['high_chairs','High chairs'], …]
+
 function FilterBar({
   locationCode     = 'H4G 1V4',
   radiusKm         = 3,
@@ -80,6 +86,24 @@ function FilterBar({
 
   // Include unconfirmed reports toggle — local state (doesn't affect filtering yet)
   const [includeUnconfirmed, setIncludeUnconfirmed] = useState(true)
+
+  // ── "More tags" dropdown state ─────────────────────────────────────────────
+  const [showMoreTags, setShowMoreTags]   = useState(false)
+  const [tagSearch,    setTagSearch]      = useState('')
+  const dropdownRef                       = useRef(null)
+
+  // Close the dropdown when the user clicks anywhere outside of it
+  useEffect(() => {
+    if (!showMoreTags) return
+    function handleOutsideClick(e) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setShowMoreTags(false)
+        setTagSearch('')
+      }
+    }
+    document.addEventListener('mousedown', handleOutsideClick)
+    return () => document.removeEventListener('mousedown', handleOutsideClick)
+  }, [showMoreTags])
 
   // Build a readable crew summary string, skipping zero-count groups
   function crewSummary() {
@@ -234,6 +258,87 @@ function FilterBar({
               </li>
             ))}
           </ul>
+
+          {/* ── "More tags" button + dropdown ─────────────────────────────── */}
+          {/*
+           * `relative` on the wrapper makes the dropdown position itself
+           * relative to this element rather than the page.
+           * `ref` lets the outside-click handler know what's "inside."
+           */}
+          <div className="relative mt-2" ref={dropdownRef}>
+            <button
+              onClick={() => { setShowMoreTags(v => !v); setTagSearch('') }}
+              className="
+                text-[10px] font-medium
+                text-purple-700 underline underline-offset-2
+                hover:text-purple-900
+                transition-colors
+              "
+            >
+              more tags
+            </button>
+
+            {showMoreTags && (
+              /*
+               * Dropdown panel — floats above the rest of the page via z-10.
+               * `left-0 top-full` anchors it just below the "more tags" button.
+               * min-w-[160px] ensures the panel is readable even in the narrow
+               * SHOWING column.
+               */
+              <div className="
+                absolute left-0 top-full mt-1 z-10
+                min-w-[160px]
+                bg-white border border-gray-200 rounded-xl shadow-lg
+                p-2
+              ">
+                {/* Search input to narrow the tag list */}
+                <input
+                  type="text"
+                  placeholder="Search tags…"
+                  value={tagSearch}
+                  onChange={e => setTagSearch(e.target.value)}
+                  autoFocus
+                  className="
+                    w-full text-[10px] px-2 py-1
+                    border border-gray-200 rounded-lg
+                    focus:outline-none focus:border-purple-400
+                    mb-1.5
+                  "
+                />
+
+                {/* Alphabetized tag list, filtered by the search input */}
+                <ul className="space-y-0.5 max-h-40 overflow-y-auto">
+                  {ALL_TAGS_SORTED
+                    .filter(([, label]) =>
+                      label.toLowerCase().includes(tagSearch.toLowerCase())
+                    )
+                    .map(([key, label]) => (
+                      <li key={key}>
+                        <button
+                          onClick={() => onTagToggle(key)}
+                          className={`
+                            w-full text-left text-[10px] px-2 py-1 rounded-lg
+                            flex items-center gap-1.5
+                            transition-colors
+                            ${activeTagFilters.includes(key)
+                              ? 'bg-purple-100 text-purple-800 font-semibold'
+                              : 'text-gray-700 hover:bg-gray-100'
+                            }
+                          `}
+                        >
+                          {/* Checkmark when the tag is already active */}
+                          <span className="w-3 shrink-0">
+                            {activeTagFilters.includes(key) ? '✓' : ''}
+                          </span>
+                          {label}
+                        </button>
+                      </li>
+                    ))
+                  }
+                </ul>
+              </div>
+            )}
+          </div>
 
           {/* Include unconfirmed checkbox */}
           <label className="flex items-center gap-1 mt-2 cursor-pointer">

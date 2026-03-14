@@ -59,14 +59,15 @@ function StarRating({ value }) {
 
 /**
  * TagRow — a single amenity tag line with its shape icon.
+ * Designed to sit in a 2-column grid, so text is kept compact.
  */
 function TagRow({ tagKey }) {
   const meta = PLACE_TAGS[tagKey]
   if (!meta) return null
   return (
-    <li className="flex items-center gap-2 text-sm text-blue-100">
-      <span className={`${meta.color} text-base`}>{meta.shape}</span>
-      {meta.label}
+    <li className="flex items-center gap-1.5 text-xs text-blue-100 min-w-0">
+      <span className={`${meta.color} text-sm shrink-0`}>{meta.shape}</span>
+      <span className="leading-snug">{meta.label}</span>
     </li>
   )
 }
@@ -110,8 +111,14 @@ function MainInfoCard({ place }) {
         * `pr-20` (padding-right) reserves space for the score badge so the
         * tag list doesn't overlap it on narrow screens.
         */}
+      {/*
+        * `pr-20` reserves 80 px on the right so the tag grid never slides
+        * under the absolutely-positioned score badge (w-16 + right-4 gap).
+        * Inside that space we use a 2-column grid so tags read side-by-side
+        * rather than in a single long list.
+        */}
       <div className="mt-3 pr-20">
-        <ul className="space-y-1">
+        <ul className="grid grid-cols-2 gap-x-2 gap-y-1.5">
           {place.tags.map(tag => (
             <TagRow key={tag} tagKey={tag} />
           ))}
