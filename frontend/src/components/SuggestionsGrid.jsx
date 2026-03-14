@@ -8,7 +8,7 @@
  *   ┌──────────────────────┐
  *   │  Venue Name    1.4km │  ← distance top-right
  *   │  Address             │
- *   │  ◇ ○ □ ◇            │  ← tag icons (outline = unconfirmed)
+ *   │  🛒 🍼 🐴 🪑         │  ← tag icons (filled = confirmed, outline = not)
  *   │                  6.0 │  ← crew compatibility score bottom-right
  *   └──────────────────────┘
  *
@@ -24,9 +24,13 @@
  *   < 5.5  →  white       (weak match, but still nearby)
  *
  * ── Tag icons ─────────────────────────────────────────────────────────────────
- * Suggestion cards use outline shapes (◇ ○ □) instead of filled (◆ ● ■).
- * Outline = the tag has been *reported* but not yet fully verified.
- * This matches the "Include unconfirmed" filter in the FilterBar.
+ * Icons are sourced from TAG_META in utils/tagMeta.js.  Each tag has both a
+ * FilledIcon and an OutlineIcon variant.  The correct variant is chosen per-card
+ * based on `place.confirmed`:
+ *   confirmed = true  → FilledIcon  (a user has verified this venue's tags)
+ *   confirmed = false → OutlineIcon (tags reported but awaiting user verification)
+ * Tags without a distinct filled variant (e.g. TbHorseToy / play_area) fall back
+ * to opacity to communicate the unconfirmed state instead of icon shape.
  *
  * ── Props ─────────────────────────────────────────────────────────────────────
  * @prop {Object[]} suggestions   - Array of venue objects (same shape as `place` in MainInfoCard)
@@ -38,32 +42,30 @@
 import { useCrew }                                     from '../context/CrewContext'
 import { useFavorites }                                from '../context/FavoritesContext'
 import { calculateCompatibilityScore, scoreToColorClasses } from '../utils/scoreEngine'
-
-// ── Tag shape metadata (outline versions for suggestion cards) ────────────────
-const TAG_SHAPES_OUTLINE = {
-  stroller_friendly: '◇',
-  changing_table:    '○',
-  play_area:         '□',
-  high_chairs:       '◇',
-  unisex_baby_duty:  '◇',
-}
+import { TAG_META }                                    from '../utils/tagMeta'
 
 /**
- * TagIconRow — a small horizontal row of shape icons representing a venue's tags.
- * Used inside suggestion cards where space is tight.
+ * TagIconRow — a small horizontal row of SVG icons representing a venue's tags.
+ * `confirmed` picks between FilledIcon (verified) and OutlineIcon (unverified).
+ * Unconfirmed icons also get 50% opacity so the state is legible even when the
+ * FilledIcon and OutlineIcon happen to be the same component (e.g. TbHorseToy).
  */
-function TagIconRow({ tags, textClass }) {
+function TagIconRow({ tags, confirmed, textClass }) {
   return (
     <div className="flex gap-1.5 flex-wrap">
-      {tags.map(tag => (
-        <span
-          key={tag}
-          className={`text-base leading-none ${textClass}`}
-          title={tag.replace(/_/g, ' ')}
-        >
-          {TAG_SHAPES_OUTLINE[tag] ?? '◇'}
-        </span>
-      ))}
+      {tags.map(tag => {
+        const meta = TAG_META[tag]
+        if (!meta) return null
+        const Icon = confirmed ? meta.FilledIcon : meta.OutlineIcon
+        return (
+          <Icon
+            key={tag}
+            className={`text-base leading-none ${textClass} ${!confirmed ? 'opacity-50' : ''}`}
+            title={meta.label}
+            aria-hidden="true"
+          />
+        )
+      })}
     </div>
   )
 }
@@ -137,8 +139,12 @@ function SuggestionCard({ place, onSelect }) {
       {/* Address */}
       <p className="text-xs opacity-70 leading-snug line-clamp-1">{place.address}</p>
 
-      {/* Tag icons */}
-      <TagIconRow tags={place.tags} textClass={bg === 'bg-white' ? 'text-gray-400' : 'text-white/70'} />
+      {/* Tag icons — icon style reflects whether the venue has been user-confirmed */}
+      <TagIconRow
+        tags={place.tags}
+        confirmed={place.confirmed}
+        textClass={bg === 'bg-white' ? 'text-gray-400' : 'text-white/70'}
+      />
 
       {/* ── Bottom row: Compatibility Score ─────────────────────────────── */}
       <div className="flex justify-end mt-auto pt-1">

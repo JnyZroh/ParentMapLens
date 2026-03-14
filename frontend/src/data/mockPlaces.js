@@ -11,6 +11,7 @@
 export const MOCK_PLACES = [
   {
     id: 1,
+    confirmed: true,   // a user has reviewed and verified the tags for this venue
     name: 'Café La Marmite',
     address: '3975 Rue Wellington, Verdun, H4G 1V4',
     rating: 4.3,
@@ -28,6 +29,7 @@ export const MOCK_PLACES = [
   },
   {
     id: 2,
+    confirmed: false,  // tags reported but not yet user-verified
     name: 'La Cantine Verdunoise',
     address: '4102 Rue Wellington, Verdun, H4G 1V7',
     rating: 4.0,
@@ -45,6 +47,7 @@ export const MOCK_PLACES = [
   },
   {
     id: 3,
+    confirmed: true,   // a user has reviewed and verified the tags for this venue
     name: 'Boulangerie Automne',
     address: '3889 Rue Wellington, Verdun, H4G 1T9',
     rating: 4.5,
@@ -62,6 +65,7 @@ export const MOCK_PLACES = [
   },
   {
     id: 4,
+    confirmed: false,  // tags reported but not yet user-verified
     name: 'Parc-Café Riverside',
     address: '600 Prom. Wellington, Verdun, H4G 1M4',
     rating: 4.2,
@@ -79,6 +83,7 @@ export const MOCK_PLACES = [
   },
   {
     id: 5,
+    confirmed: false,  // tags reported but not yet user-verified
     name: 'Brasserie du Quartier',
     address: '75 Rue Galt O., Verdun, H4G 1B8',
     rating: 3.8,

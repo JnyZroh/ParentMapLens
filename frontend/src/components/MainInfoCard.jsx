@@ -10,12 +10,19 @@
  *   │  Venue Name                      4.1 ★  │  ← public rating (out of 5)
  *   │  Address, postal code            1.1 km  │
  *   │                                          │
- *   │  ◆ Stroller-friendly spaces              │
- *   │  ● Diaper changing tables                │
- *   │  ■ Play area                          ╭────╮
- *   │  ◆ High chairs                        │7.8 │  ← crew compatibility (0–10)
- *   │  ◆ Unisex baby duty spaces            ╰────╯
+ *   │  🛒 Stroller-friendly spaces             │  ← filled = confirmed
+ *   │  🍼 Diaper changing tables               │    outline = unconfirmed
+ *   │  🐴 Play area                         ╭────╮
+ *   │  🪑 High chairs                       │7.8 │  ← crew compatibility (0–10)
+ *   │  🚻 Unisex baby duty spaces           ╰────╯
  *   └──────────────────────────────────────────┘
+ *
+ * ── Confirmed vs. Unconfirmed ─────────────────────────────────────────────────
+ * A venue is "confirmed" once a user has reviewed it and verified the tags are
+ * still accurate.  Icons reflect this:
+ *   FilledIcon  (place.confirmed = true)  — a user has vouched for these tags
+ *   OutlineIcon (place.confirmed = false) — reported but not yet verified
+ * This keeps parents informed about data freshness without cluttering the UI.
  *
  * ── Dual Ratings Explained ───────────────────────────────────────────────────
  * 1. Public Rating (★ 4.1 / 5.0)
@@ -28,22 +35,13 @@
  *    This is the differentiator — it answers "is this right for MY crew TODAY?"
  *
  * ── Props ─────────────────────────────────────────────────────────────────────
- * @prop {Object} place - Venue data object (see PLACE_TAGS constant below for shape)
+ * @prop {Object} place - Venue data object.  Must include a `confirmed` boolean
+ *                        (true = user-verified tags; false = unverified reports).
  */
 
 import { useCrew }                     from '../context/CrewContext'
 import { calculateCompatibilityScore } from '../utils/scoreEngine'
-
-// ── Tag metadata ──────────────────────────────────────────────────────────────
-// Maps a tag key to its display label and the shape/colour used as its icon.
-// Shape chars: ◆ diamond  ● circle  ■ square
-const PLACE_TAGS = {
-  stroller_friendly: { label: 'Stroller-friendly spaces',   shape: '◆', color: 'text-green-400' },
-  changing_table:    { label: 'Diaper changing tables',      shape: '●', color: 'text-green-400' },
-  play_area:         { label: 'Play area',                   shape: '■', color: 'text-emerald-400' },
-  high_chairs:       { label: 'High chairs',                 shape: '◆', color: 'text-green-400' },
-  unisex_baby_duty:  { label: 'Unisex baby duty spaces',     shape: '◆', color: 'text-green-300' },
-}
+import { TAG_META }                    from '../utils/tagMeta'
 
 /**
  * StarRating — renders "4.1 ★" with the star glyph coloured gold.
@@ -58,15 +56,22 @@ function StarRating({ value }) {
 }
 
 /**
- * TagRow — a single amenity tag line with its shape icon.
- * Designed to sit in a 2-column grid, so text is kept compact.
+ * TagRow — a single amenity tag line with its SVG icon.
+ * `confirmed` controls whether the filled or outline icon variant is rendered.
+ * For tags whose FilledIcon === OutlineIcon (e.g. play_area / TbHorseToy),
+ * the distinction is communicated via opacity instead of icon shape.
  */
-function TagRow({ tagKey }) {
-  const meta = PLACE_TAGS[tagKey]
+function TagRow({ tagKey, confirmed }) {
+  const meta = TAG_META[tagKey]
   if (!meta) return null
+  // Pick the appropriate icon variant based on the venue's confirmation status
+  const Icon = confirmed ? meta.FilledIcon : meta.OutlineIcon
   return (
     <li className="flex items-center gap-1.5 text-xs text-blue-100 min-w-0">
-      <span className={`${meta.color} text-sm shrink-0`}>{meta.shape}</span>
+      <Icon
+        className={`${meta.color} text-base shrink-0 ${!confirmed ? 'opacity-50' : ''}`}
+        aria-hidden="true"
+      />
       <span className="leading-snug">{meta.label}</span>
     </li>
   )
@@ -120,7 +125,7 @@ function MainInfoCard({ place }) {
       <div className="mt-3 pr-20">
         <ul className="grid grid-cols-2 gap-x-2 gap-y-1.5">
           {place.tags.map(tag => (
-            <TagRow key={tag} tagKey={tag} />
+            <TagRow key={tag} tagKey={tag} confirmed={place.confirmed} />
           ))}
         </ul>
       </div>

@@ -36,6 +36,9 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { useCrew }                     from '../context/CrewContext'
+// TAG_LABELS is derived from TAG_META in tagMeta.js — single source of truth
+// so FilterBar labels always match what MainInfoCard and SuggestionsGrid display.
+import { TAG_LABELS }                  from '../utils/tagMeta'
 
 // ── Small helper: +/- stepper for the Adjust panel ────────────────────────────
 function Stepper({ label, value, onIncrement, onDecrement }) {
@@ -57,15 +60,6 @@ function Stepper({ label, value, onIncrement, onDecrement }) {
       </div>
     </div>
   )
-}
-
-// ── Tag label lookup (short versions for the SHOWING column) ──────────────────
-const TAG_LABELS = {
-  stroller_friendly: 'Stroller-friendly',
-  changing_table:    'Changing tables',
-  play_area:         'Play area',
-  high_chairs:       'High chairs',
-  unisex_baby_duty:  'Unisex baby duty',
 }
 
 // ── All available tags sorted alphabetically by display label ─────────────────
