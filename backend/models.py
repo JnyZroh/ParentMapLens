@@ -35,6 +35,11 @@ class Place(Base):
     longitude       — geographic longitude (e.g. -73.6203)
     address         — human-readable street address
     place_type      — category: "cafe" | "restaurant" | "park" | "museum" | etc.
+    rating          — public star rating out of 5.0 (curated or crowd-sourced)
+    tags            — JSON array string of Awareness Checklist tags the venue has,
+                      e.g. '["stroller_friendly", "high_chairs", "changing_table"]'
+                      Stored as text in SQLite; parsed by the API before sending
+                      to the frontend.
     created_at      — timestamp when the record was created
 
     Relationships
@@ -50,6 +55,11 @@ class Place(Base):
     longitude = Column(Float, nullable=False)
     address = Column(String(255), nullable=True)
     place_type = Column(String(50), nullable=True)  # "cafe" | "restaurant" | "park" | etc.
+    # Public star rating out of 5.0 (e.g. 4.1)
+    rating = Column(Float, nullable=True, default=0.0)
+    # Awareness Checklist tags as a JSON array string stored in SQLite Text column.
+    # The API layer calls json.loads() when reading and json.dumps() when writing.
+    tags = Column(Text, nullable=True, default="[]")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # One Place can have many Reviews
