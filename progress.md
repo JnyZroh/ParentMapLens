@@ -102,8 +102,21 @@ Completed in session `review-project-plan-oxRNH`.
 
 ---
 
-## Phase 5 — Parent Report Form
+## Phase 5 — Verdun Data Ingestion Pipeline
+> Not yet started. See `data.md` for full strategy and pipeline design rationale.
+
+### What to build
+- [ ] **Google Places API script** — query the Verdun/Wellington corridor for cafés, restaurants, and family venues; output a list of venues with names, addresses, and coordinates
+- [ ] **Review ingestion** — call Places Details API per venue to pull up to 5 recent reviews (included in the free tier response)
+- [ ] **Claude API tag suggester** — send each venue's review text to Claude with a structured prompt asking it to rate likelihood of each tag (stroller_friendly, changing_table, play_area, high_chairs, unisex_baby_duty); return JSON with confidence per tag
+- [ ] **Seed file output** — write the suggested-tag venues to a JSON file that can replace `mockPlaces.js` or seed the SQLite database
+- [ ] **Manual confirmation pass** — developer reviews each suggestion, cross-references personal knowledge and on-site visits, sets `confirmed: true` on verified entries
+
+---
+
+## Phase 5.5 — Parent Report Form
 > Crowdsource awareness data via `POST /api/places/{id}/reviews`. Not yet started.
+> This becomes the long-term mechanism for keeping confirmed data fresh after the initial seed is in place.
 
 ---
 
