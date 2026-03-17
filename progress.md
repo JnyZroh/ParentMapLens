@@ -83,10 +83,10 @@ Run `cd frontend && npm run dev`, then confirm:
 
 ---
 
-## Phase 4 — Homepage / Dashboard with Recommendations
-> Largely complete. One item remaining (see below).
+## Phase 4 — Homepage / Dashboard with Recommendations (Complete ✅)
 
-### Completed ✅
+Completed in session `review-project-plan-oxRNH`.
+
 - [x] **Routing** — `App.jsx` uses `BrowserRouter`; `/` → `HomeDashboard`, `/search` → `SearchResultPage`
 - [x] **`HomeDashboard.jsx`** — full layout implemented:
   - SearchBar (uncontrolled; pressing Search navigates to `/search`)
@@ -94,15 +94,44 @@ Run `cd frontend && npm run dev`, then confirm:
   - "Plan a Day with Your Crew" CTA heading
   - `FilterBar` with live `radiusKm` + `activeTagFilters` state
   - Large "Search" button → `navigate('/search')`
-  - "Recommendations For You" section using `RecommendationsList` (sorted descending by Crew Match Score via `useMemo`)
+  - "Recommendations For You" section using `RecommendationsList`
 - [x] **`FavoritesContext.jsx`** — `FavoritesProvider` + `useFavorites` hook; `favorites` is a `Set` of place IDs
 - [x] **`FavoritesProvider`** wraps the entire app in `main.jsx` so favorites persist across navigation
 - [x] **☆/★ star toggle** on `SuggestionCard` — calls `toggleFavorite` from `FavoritesContext`; filled ★ = `text-yellow-300`
-
-### Remaining ⬜
-- [ ] **Favorites surfaced first in recommendations** — `RecommendationsList` currently sorts by Crew Match Score only. It should also read `useFavorites` and float favorited venues to the top of the list before the score sort kicks in.
+- [x] **Favorites surfaced first** — `RecommendationsList` sorts by: (1) favorited venues first, (2) descending Crew Match Score within each group; `useMemo` deps include both `crew` and `favorites`
 
 ---
 
 ## Phase 5 — Parent Report Form
 > Crowdsource awareness data via `POST /api/places/{id}/reviews`. Not yet started.
+
+---
+
+## Phase 6 — Brand Identity, Onboarding & Account Model
+> Not yet started.
+
+### Goals
+- **Logo & visual identity** — design or source a logo; establish the app's color palette and typography to replace the placeholder Tailwind defaults
+- **Color scheme & font** — choose a cohesive palette (ideally one that reads well in outdoor / bright-light conditions for on-the-go parents) and a font stack; apply globally via Tailwind config
+- **Onboarding flow** — first-launch screens that introduce the app concept, let users set their default crew composition, and explain the confirmed/unconfirmed icon system
+- **Account vs. non-account experience** — map out the feature split:
+  - *No account:* browse venues, view tags, adjust crew per-session, use filters
+  - *Account holder:* save favorites across sessions, submit Parent Reports, confirm venue tags, earn contribution badges (see Polish.md gamification item)
+  - Decide whether a lightweight anonymous session (localStorage / cookie) can bridge the gap before sign-up is required
+
+---
+
+## Phase 7 — Business Model & Growth Strategy
+> Not yet started.
+
+### Goals
+- **Monetization options** — evaluate and prioritise revenue paths, e.g.:
+  - Freemium (core free, power features behind a subscription)
+  - Venue partnerships / sponsored listings (family-friendly certification badge)
+  - Affiliate links (stroller brands, baby gear retailers)
+  - One-time "supporter" purchase
+- **Reinvestment roadmap** — outline how early revenue gets directed back into the product:
+  - Infrastructure (moving from SQLite to a hosted DB, CDN for photos)
+  - Data quality (incentivised user confirmations, moderation tooling)
+  - Audience growth (App Store / Play Store listing, SEO, parenting community outreach)
+- **Metrics to track from day one** — decide which signals (DAU, report submissions, confirmation rate, retention) matter most before building analytics

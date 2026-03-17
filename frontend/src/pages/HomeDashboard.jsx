@@ -28,9 +28,9 @@
  * React Router's `useNavigate`.
  *
  * ── Recommendations order ─────────────────────────────────────────────────────
- * All MOCK_PLACES sorted descending by Crew Match Score so the best-fit venues
- * for the current crew appear first.  Once a favorites list exists, favorited
- * places will be surfaced at the top of this list.
+ * All MOCK_PLACES sorted by two criteria:
+ *   1. Favorited venues always float to the top (starred ★ = saved by this user)
+ *   2. Within each group, sorted descending by Crew Match Score
  */
 
 import { useState, useMemo }  from 'react'
@@ -38,6 +38,7 @@ import { useNavigate }        from 'react-router-dom'
 import { MapContainer, TileLayer } from 'react-leaflet'
 import { CrewProvider }       from '../context/CrewContext'
 import { useCrew }            from '../context/CrewContext'
+import { useFavorites }       from '../context/FavoritesContext'
 import SearchBar              from '../components/SearchBar'
 import FilterBar              from '../components/FilterBar'
 import SuggestionsGrid        from '../components/SuggestionsGrid'
@@ -57,17 +58,26 @@ const CITY_ZOOM    = 14
  * whenever the user adjusts their crew in the FilterBar.
  */
 function RecommendationsList({ onSelectPlace }) {
-  const { crew } = useCrew()
+  const { crew }            = useCrew()
+  const { favorites }       = useFavorites()
 
-  // Sort a copy of MOCK_PLACES descending by Crew Match Score.
-  // useMemo avoids re-sorting on every render unless crew changes.
+  // Sort by two criteria:
+  //   1. Favorited venues first (starred by this user)
+  //   2. Descending Crew Match Score within each group
+  // useMemo re-runs only when crew or favorites change.
   const sorted = useMemo(() => {
-    return [...MOCK_PLACES].sort(
-      (a, b) =>
+    return [...MOCK_PLACES].sort((a, b) => {
+      const aFav = favorites.has(a.id) ? 1 : 0
+      const bFav = favorites.has(b.id) ? 1 : 0
+      // If one is favorited and the other isn't, favorited wins
+      if (bFav !== aFav) return bFav - aFav
+      // Otherwise rank by Crew Match Score
+      return (
         calculateCompatibilityScore(crew, b.tags) -
         calculateCompatibilityScore(crew, a.tags)
-    )
-  }, [crew])
+      )
+    })
+  }, [crew, favorites])
 
   return (
     <SuggestionsGrid
