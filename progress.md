@@ -84,26 +84,23 @@ Run `cd frontend && npm run dev`, then confirm:
 ---
 
 ## Phase 4 — Homepage / Dashboard with Recommendations
-> Not yet started.
+> Largely complete. One item remaining (see below).
 
-Build a landing screen that greets the user before any search is run.
+### Completed ✅
+- [x] **Routing** — `App.jsx` uses `BrowserRouter`; `/` → `HomeDashboard`, `/search` → `SearchResultPage`
+- [x] **`HomeDashboard.jsx`** — full layout implemented:
+  - SearchBar (uncontrolled; pressing Search navigates to `/search`)
+  - Full-width Leaflet `MapContainer` at 40vh, centered on Métro Verdun, draggable, `zoomControl={false}`
+  - "Plan a Day with Your Crew" CTA heading
+  - `FilterBar` with live `radiusKm` + `activeTagFilters` state
+  - Large "Search" button → `navigate('/search')`
+  - "Recommendations For You" section using `RecommendationsList` (sorted descending by Crew Match Score via `useMemo`)
+- [x] **`FavoritesContext.jsx`** — `FavoritesProvider` + `useFavorites` hook; `favorites` is a `Set` of place IDs
+- [x] **`FavoritesProvider`** wraps the entire app in `main.jsx` so favorites persist across navigation
+- [x] **☆/★ star toggle** on `SuggestionCard` — calls `toggleFavorite` from `FavoritesContext`; filled ★ = `text-yellow-300`
 
-### Layout (top → bottom)
-- **SearchBar + Profile** — same header as SearchResultPage; Search button navigates to `/search`
-- **Full-width Leaflet map** — centered on the user's city (Métro Verdun default), zoom 14, draggable but no zoom controls
-- **"Plan a Day with Your Crew" CTA block** — inline `FilterBar` (crew adjuster, location, distance, tags) so filters are set before searching
-- **Search button** — large tap target that navigates to `/search`
-- **"Recommendations For You" grid** — 2-column `SuggestionsGrid` showing all MOCK_PLACES sorted by descending Crew Match Score; once a favorites list exists, favorited places surface first
-
-### Routing
-- Install `react-router-dom` and set up `BrowserRouter` in `App.jsx`
-- `/` → `HomeDashboard`
-- `/search` → `SearchResultPage`
-
-### Favorites
-- Add `FavoritesContext` to track saved place IDs (Set in React state)
-- Wrap app with `FavoritesProvider` in `main.jsx`
-- `SuggestionCard` gains a ☆/★ star toggle in the top-right corner for adding/removing favorites from any page
+### Remaining ⬜
+- [ ] **Favorites surfaced first in recommendations** — `RecommendationsList` currently sorts by Crew Match Score only. It should also read `useFavorites` and float favorited venues to the top of the list before the score sort kicks in.
 
 ---
 
