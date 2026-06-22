@@ -104,14 +104,19 @@ Completed in session `review-project-plan-oxRNH`.
 ---
 
 ## Phase 5 — Verdun Data Ingestion Pipeline
-> Not yet started. See `data.md` for full strategy and pipeline design rationale.
+> In progress. See `data.md` for full strategy and pipeline design rationale.
 
-### What to build
-- [ ] **Google Places API script** — query the Verdun/Wellington corridor for cafés, restaurants, and family venues; output a list of venues with names, addresses, and coordinates
-- [ ] **Review ingestion** — call Places Details API per venue to pull up to 5 recent reviews (included in the free tier response)
-- [ ] **Claude API tag suggester** — send each venue's review text to Claude with a structured prompt asking it to rate likelihood of each tag (stroller_friendly, changing_table, play_area, high_chairs, unisex_baby_duty); return JSON with confidence per tag
-- [ ] **Seed file output** — write the suggested-tag venues to a JSON file that can replace `mockPlaces.js` or seed the SQLite database
-- [ ] **Manual confirmation pass** — developer reviews each suggestion, cross-references personal knowledge and on-site visits, sets `confirmed: true` on verified entries
+### Pipeline steps
+
+- [x] **Step 1 — Venue Discovery** (`scripts/fetch_venues.py`) — queries Google Places Nearby Search for cafés, restaurants, and parks within 1 km of the Wellington/Verdun corridor; 106 operational venues written to `scripts/raw_venues.json`
+- [ ] **Step 2 — Tag Suggestion** (`scripts/suggest_tags.py`) — sends each venue's metadata (name, type, address, rating, price_level) to Claude and asks it to suggest parent-awareness tags; outputs `scripts/tagged_venues.json`
+- [ ] **Step 3 — Manual Review** — developer opens `tagged_venues.json`, confirms or removes each suggested tag, adds any obvious ones the LLM missed
+- [ ] **Step 4 — DB Import** (`scripts/import_seed.py`) — upserts reviewed venues into SQLite, flagged as `is_seed = true`
+
+### Tag suggestion approach (Step 2)
+Tag suggestions use **LLM with venue metadata only** — no review text. For a well-documented area like Verdun/Wellington, Claude's training knowledge plus venue type and price level are enough to produce useful first-draft tags. Tags are candidates only; every one must survive manual review before hitting the database.
+
+> **Future expansion note:** This approach has a hard limit. Once the app grows beyond popular, well-documented neighbourhoods, the LLM will have little or no training knowledge of individual venues. At that point, Step 2 will need to be upgraded to pull Google Places review text (up to 5 reviews per venue via the Details API) and use those as the signal source instead of metadata alone.
 
 ---
 
