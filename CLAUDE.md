@@ -28,6 +28,17 @@ The app tracks parent-verified data points for any location:
 - **Modular Progress:** Build one feature at a time. Do not move to the next step until the current one is verified.
 - **Verification:** Always provide the exact terminal command needed to test the current build.
 
+## 📋 File Conventions
+
+### Features.md
+Tracks all features that are currently live in the app. **Always ask the user before adding a new entry** — do not update this file autonomously.
+
+### Polish.md
+Tracks polish to-dos. Every item must be assigned one of these three categories:
+- **UI** — Visual or layout changes with no logic impact (e.g. color scheme, spacing, typography).
+- **Functionality** — Changes to existing behaviour or interactions (e.g. tweaking filter logic, adjusting scoring weights).
+- **Feature** — New capabilities, including those that partially overlap with existing functionality (e.g. a new grid section that reuses existing components but adds new selection logic).
+
 ## 🚧 Roadmap & Current Status
 - [x] **Phase 1:** Project initialization and folder structure.
 - [x] **Phase 2:** Basic map rendering with Leaflet.
