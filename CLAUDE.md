@@ -64,12 +64,7 @@ We feed each venue's `name`, `place_type`, `address`, `rating`, and `price_level
 **Rationale:** Tag suggestions are *candidates only* — every tag must be manually confirmed before import. Adding more data sources (Google reviews, photos) would give a false sense of accuracy and undermine the principle that parent-verified reports are the only reliable source. The LLM pass is just a starting draft to speed up manual review, not a substitute for it.
 
 ### Tag Vocabulary
-Tags are short, lowercase strings from a fixed vocabulary:
-- **Space:** `stroller_friendly`, `high_tops_only`, `tight_space`, `outdoor_seating`
-- **Noise:** `noise_low`, `noise_moderate`, `noise_high`
-- **Needs:** `changing_table`, `high_chairs`, `kids_menu`
-- **Vibe:** `kid_welcoming`, `mixed_vibe`, `adult_focused`
-- **Type:** `playground`, `splash_pad`, `covered_area` (parks only)
+See `data.md` for the canonical tag list, category definitions, LLM-suggestability notes, and score engine guidance. Do not maintain a duplicate list here.
 
 ### Key Files
 - `scripts/fetch_venues.py` — Step 1 script (committed)
