@@ -109,7 +109,7 @@ Completed in session `review-project-plan-oxRNH`.
 ### Pipeline steps
 
 - [x] **Step 1 — Venue Discovery** (`scripts/fetch_venues.py`) — queries Google Places Nearby Search for cafés, restaurants, and parks within 1 km of the Wellington/Verdun corridor; 106 operational venues written to `scripts/raw_venues.json`
-- [ ] **Step 2 — Tag Suggestion** (`scripts/suggest_tags.py`) — sends each venue's metadata (name, type, address, rating, price_level) to Claude and asks it to suggest parent-awareness tags; outputs `scripts/tagged_venues.json`
+- [x] **Step 2 — Tag Suggestion** (`scripts/suggest_tags.py`) — sends each venue's metadata (name, type, address, rating, price_level) to Claude and asks it to suggest parent-awareness tags; outputs `scripts/tagged_venues.json`
 - [ ] **Step 3 — Manual Review** — developer opens `tagged_venues.json`, confirms or removes each suggested tag, adds any obvious ones the LLM missed
 - [ ] **Step 4 — DB Import** (`scripts/import_seed.py`) — upserts reviewed venues into SQLite, flagged as `is_seed = true`
 
