@@ -47,6 +47,31 @@ Tags are short, lowercase strings from a fixed vocabulary. A venue can hold mult
 
 ---
 
+## Confirmation Model
+
+Confirmation is **per-tag**, not per-venue. A venue can have a verified `stroller_friendly` tag (personally visited) alongside an unconfirmed `changing_table` tag (LLM-suggested). Treating the whole venue as confirmed or not would be false precision.
+
+Each tag entry carries two fields:
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `confirmed_at` | `datetime \| null` | `null` = unconfirmed. Set to the date of manual review or parent report submission |
+| `confirmed_by` | `user_id \| null` | `null` for seed data confirmed during manual review (no user account). Set to the reporting parent's ID for crowdsourced confirmations |
+
+**Three states, derived at query time:**
+
+| State | Condition | UI treatment |
+|-------|-----------|-------------|
+| `unconfirmed` | `confirmed_at` is null | Grey / hollow icon |
+| `confirmed` | `confirmed_at` within 12 months | Green / filled icon |
+| `stale` | `confirmed_at` beyond 12 months | Amber / icon with warning |
+
+The 12-month threshold is a configurable constant — stored once in the app config, not hardcoded per query. If experience shows the threshold should be tighter or looser, changing the constant updates all derived states without a schema migration.
+
+> **Rationale:** Venues change. Staff turn over, high chairs disappear, changing tables go out of service. A tag confirmed last month is trustworthy; the same tag from two years ago is a starting point, not a guarantee. The three-state model lets parents see this distinction at a glance without the app silently serving stale data as fact.
+
+---
+
 ## How to think about Phase 5 data gathering
 
 There are three sources of venue data, roughly in order of reliability:

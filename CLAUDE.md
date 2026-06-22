@@ -27,6 +27,7 @@ The app tracks parent-verified data points for any location:
 - **Heavy Documentation:** Include comments explaining the "why" behind the code logic.
 - **Modular Progress:** Build one feature at a time. Do not move to the next step until the current one is verified.
 - **Verification:** Always provide the exact terminal command needed to test the current build.
+- **Review Polish.md first** — Before starting a new phase or feature, scan `Polish.md` for any unresolved items that may affect the design of the upcoming work.
 
 ## 📋 File Conventions
 

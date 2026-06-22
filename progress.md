@@ -124,6 +124,8 @@ Tag suggestions use **LLM with venue metadata only** — no review text. For a w
 > Crowdsource awareness data via `POST /api/places/{id}/reviews`. Not yet started.
 > This becomes the long-term mechanism for keeping confirmed data fresh after the initial seed is in place.
 
+**Design constraint (decided before Phase 5.5 begins):** The report form must confirm individual tags, not the venue as a whole. Each submission sets `confirmed_at` and `confirmed_by` on specific tags. This is required by the per-tag confirmation model — see `data.md` for the full schema and three-state logic (`unconfirmed` / `confirmed` / `stale`).
+
 ---
 
 ## Phase 6 — Brand Identity, Onboarding & Account Model
